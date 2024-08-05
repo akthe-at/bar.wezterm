@@ -14,6 +14,7 @@ local config = {
   clock_icon = "󰃰",
   cwd_icon = "",
   enabled_modules = {
+    workspace = true,
     username = true,
     hostname = true,
     clock = true,
@@ -247,17 +248,23 @@ wez.on("update-status", function(window, pane)
     stat = get_leader(stat)
   end
 
-  window:set_left_status(wez.format {
-    { Background = { Color = palette.tab_bar.background } },
-    { Foreground = { Color = stat_fg } },
-    { Text = stat },
-  })
+  -- window:set_left_status(wez.format {
+  --   { Background = { Color = palette.tab_bar.background } },
+  --   { Foreground = { Color = stat_fg } },
+  --   { Text = stat },
+  -- })
 
   -- right status
   local cells = {
     { Background = { Color = palette.tab_bar.background } },
   }
   local enabled_modules = config.enabled_modules
+  if enabled_modules.workspace then
+    table.insert(cells, { Foreground = palette.ansi[config.ansi_colors.workspace] })
+    table.insert(cells, { Text = config.cwd_icon .. " " })
+    table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.cwd] } })
+    table.insert(cells, { Text = stat .. " " })
+  end
 
   if enabled_modules.username then
     table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.username] } })
