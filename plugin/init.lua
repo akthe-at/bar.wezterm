@@ -248,11 +248,11 @@ wez.on("update-status", function(window, pane)
     stat = get_leader(stat)
   end
 
-  window:set_left_status(wez.format {
-    { Background = { Color = palette.tab_bar.background } },
-    { Foreground = { Color = stat_fg } },
-    { Text = stat },
-  })
+  -- window:set_left_status(wez.format {
+  --   { Background = { Color = palette.tab_bar.background } },
+  --   { Foreground = { Color = stat_fg } },
+  --   { Text = stat },
+  -- })
 
   -- right status
   local cells = {
