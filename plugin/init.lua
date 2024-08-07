@@ -263,11 +263,7 @@ wez.on("update-status", function(window, pane)
     table.insert(left_cells, { Text = config.pane_icon .. " " .. basename(pane:get_title()) .. " " })
   end
 
-  -- window:set_left_status(wez.format {
-  --   { Background = { Color = palette.tab_bar.background } },
-  --   { Foreground = { Color = stat_fg } },
-  --   { Text = stat },
-  -- })
+  window:set_left_status(wez.format(left_cells))
 
   -- right status
   local right_cells = {
