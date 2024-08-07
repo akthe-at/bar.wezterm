@@ -20,6 +20,8 @@ local config = {
     hostname = true,
     clock = true,
     cwd = true,
+    left_status = true,
+    right_status = true,
   },
   ansi_colors = {
     workspace = 8,
@@ -264,7 +266,9 @@ wez.on("update-status", function(window, pane)
     table.insert(left_cells, { Text = config.pane_icon .. " " .. basename(pane:get_title()) .. " " })
   end
 
-  window:set_left_status(wez.format(left_cells))
+  if enabled_modules.left_status then
+    window:set_left_status(wez.format(left_cells))
+  end
 
   -- right status
   local right_cells = {
@@ -312,7 +316,9 @@ wez.on("update-status", function(window, pane)
     table.insert(right_cells, { Text = cwd .. " " })
   end
 
-  window:set_right_status(wez.format(right_cells))
+  if enabled_modules.right_status then
+    window:set_right_status(wez.format(right_cells))
+  end
 end)
 
 return M
