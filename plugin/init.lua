@@ -2,10 +2,10 @@ local wez = require "wezterm"
 
 local config = {
   position = "bottom",
-  max_width = 32,
+  max_width = 21,
   left_separator = "  ",
   right_separator = "  ",
-  field_separator = "  |  ",
+  field_separator = " | ",
   leader_icon = "",
   workspace_icon = "",
   pane_icon = "",
