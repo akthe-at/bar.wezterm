@@ -273,6 +273,10 @@ wez.on("update-status", function(window, pane)
   local enabled_modules = config.enabled_modules
 
   if enabled_modules.workspace then
+    local stat = " " .. config.workspace_icon .. " " .. window:active_workspace() .. " "
+    if window:leader_is_active() then
+      stat = get_leader(stat)
+    end
     table.insert(right_cells, { Foreground = { Color = palette.brights[1] } })
     table.insert(right_cells, { Text = config.cwd_icon .. " " })
     table.insert(right_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.cwd] } })
