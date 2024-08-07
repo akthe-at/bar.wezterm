@@ -239,6 +239,7 @@ wez.on("update-status", function(window, pane)
   end
 
   local palette = conf.resolved_palette
+  local enabled_modules = config.enabled_modules
 
   -- left status
   local left_cells = {
