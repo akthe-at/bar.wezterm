@@ -15,6 +15,7 @@ local config = {
   cwd_icon = "",
   enabled_modules = {
     workspace = true,
+    pane = true,
     username = true,
     hostname = true,
     clock = true,
@@ -39,11 +40,11 @@ local is_windows = package.config:sub(1, 1) == "\\"
 
 local M = {}
 
-local function tableMerge(t1, t2)
+local function table_merge(t1, t2)
   for k, v in pairs(t2) do
     if type(v) == "table" then
       if type(t1[k] or false) == "table" then
-        tableMerge(t1[k] or {}, t2[k] or {})
+        table_merge(t1[k] or {}, t2[k] or {})
       else
         t1[k] = v
       end
@@ -176,7 +177,7 @@ M.apply_to_config = function(c, opts)
   end
 
   -- combine user config with defaults
-  config = tableMerge(config, opts)
+  config = table_merge(config, opts)
 
   local scheme = wez.color.get_builtin_schemes()[c.color_scheme]
   local default_colors = {
@@ -196,7 +197,7 @@ M.apply_to_config = function(c, opts)
   if c.colors == nil then
     c.colors = default_colors
   else
-    c.colors = tableMerge(default_colors, c.colors)
+    c.colors = table_merge(default_colors, c.colors)
   end
 
   c.use_fancy_tab_bar = false
@@ -240,12 +241,26 @@ wez.on("update-status", function(window, pane)
   local palette = conf.resolved_palette
 
   -- left status
-  local stat = " " .. config.workspace_icon .. " " .. window:active_workspace() .. " "
-  local stat_fg = palette.ansi[config.ansi_colors.workspace]
+  local left_cells = {
+    { Background = { Color = palette.tab_bar.background } },
+  }
 
-  if window:leader_is_active() then
-    stat_fg = palette.ansi[config.ansi_colors.leader]
-    stat = get_leader(stat)
+  if enabled_modules.workspace then
+    local stat = " " .. config.workspace_icon .. " " .. window:active_workspace() .. " "
+    local stat_fg = palette.ansi[config.ansi_colors.workspace]
+
+    if window:leader_is_active() then
+      stat_fg = palette.ansi[config.ansi_colors.leader]
+      stat = get_leader(stat)
+    end
+
+    table.insert(left_cells, { Foreground = { Color = stat_fg } })
+    table.insert(left_cells, { Text = stat })
+  end
+
+  if enabled_modules.pane then
+    table.insert(left_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.pane] } })
+    table.insert(left_cells, { Text = config.pane_icon .. " " .. basename(pane:get_title()) .. " " })
   end
 
   -- window:set_left_status(wez.format {
@@ -255,47 +270,48 @@ wez.on("update-status", function(window, pane)
   -- })
 
   -- right status
-  local cells = {
+  local right_cells = {
     { Background = { Color = palette.tab_bar.background } },
   }
   local enabled_modules = config.enabled_modules
+
   if enabled_modules.workspace then
-    table.insert(cells, { Foreground = { Color = palette.brights[1] } })
-    table.insert(cells, { Text = config.cwd_icon .. " " })
-    table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.cwd] } })
-    table.insert(cells, { Text = stat .. " " })
+    table.insert(right_cells, { Foreground = { Color = palette.brights[1] } })
+    table.insert(right_cells, { Text = config.cwd_icon .. " " })
+    table.insert(right_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.cwd] } })
+    table.insert(right_cells, { Text = stat .. " " })
   end
 
   if enabled_modules.username then
-    table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.username] } })
-    table.insert(cells, { Text = username })
-    table.insert(cells, { Foreground = { Color = palette.brights[1] } })
-    table.insert(cells, { Text = config.right_separator .. config.user_icon .. config.field_separator })
+    table.insert(right_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.username] } })
+    table.insert(right_cells, { Text = username })
+    table.insert(right_cells, { Foreground = { Color = palette.brights[1] } })
+    table.insert(right_cells, { Text = config.right_separator .. config.user_icon .. config.field_separator })
   end
 
   local cwd, hostname = get_cwd_hostname(pane, true)
   if enabled_modules.hostname then
-    table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.hostname] } })
-    table.insert(cells, { Text = hostname })
-    table.insert(cells, { Foreground = { Color = palette.brights[1] } })
-    table.insert(cells, { Text = config.right_separator .. config.hostname_icon .. config.field_separator })
+    table.insert(right_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.hostname] } })
+    table.insert(right_cells, { Text = hostname })
+    table.insert(right_cells, { Foreground = { Color = palette.brights[1] } })
+    table.insert(right_cells, { Text = config.right_separator .. config.hostname_icon .. config.field_separator })
   end
 
   if enabled_modules.clock then
-    table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.clock] } })
-    table.insert(cells, { Text = wez.time.now():format "%H:%M" })
-    table.insert(cells, { Foreground = { Color = palette.brights[1] } })
-    table.insert(cells, { Text = config.right_separator .. config.clock_icon .. "  " })
+    table.insert(right_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.clock] } })
+    table.insert(right_cells, { Text = wez.time.now():format "%H:%M" })
+    table.insert(right_cells, { Foreground = { Color = palette.brights[1] } })
+    table.insert(right_cells, { Text = config.right_separator .. config.clock_icon .. "  " })
   end
 
   if enabled_modules.cwd then
-    table.insert(cells, { Foreground = { Color = palette.brights[1] } })
-    table.insert(cells, { Text = config.cwd_icon .. " " })
-    table.insert(cells, { Foreground = { Color = palette.ansi[config.ansi_colors.cwd] } })
-    table.insert(cells, { Text = cwd .. " " })
+    table.insert(right_cells, { Foreground = { Color = palette.brights[1] } })
+    table.insert(right_cells, { Text = config.cwd_icon .. " " })
+    table.insert(right_cells, { Foreground = { Color = palette.ansi[config.ansi_colors.cwd] } })
+    table.insert(right_cells, { Text = cwd .. " " })
   end
 
-  window:set_right_status(wez.format(cells))
+  window:set_right_status(wez.format(right_cells))
 end)
 
 return M
