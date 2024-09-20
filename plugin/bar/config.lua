@@ -52,13 +52,6 @@ M.options = {
       icon = wez.nerdfonts.oct_file_directory,
       color = 7,
     },
-    spotify = {
-      enabled = true,
-      icon = wez.nerdfonts.fa_spotify,
-      color = 3,
-      max_width = 64,
-      throttle = 15,
-    },
   },
 }
 

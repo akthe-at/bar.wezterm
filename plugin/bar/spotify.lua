@@ -26,20 +26,20 @@ end
 
 -- gets the currently playing song from spotify
 M.get_currently_playing = function(max_width, throttle)
-  if utilities._wait(throttle, last_update) then
-    return stored_playback
-  end
-  -- fetch playback using spotify-tui
-  local success, pb, stderr = wez.run_child_process { "spt", "pb", "--format", "%a - %t" }
-  if not success then
-    wez.log_error(stderr)
-    return ""
-  end
-  local res = format_playback(utilities._trim(pb), max_width)
-  stored_playback = res
-  last_update = os.time()
-
-  return res
+  -- if utilities._wait(throttle, last_update) then
+  --   return stored_playback
+  -- end
+  -- -- fetch playback using spotify-tui
+  -- local success, pb, stderr = wez.run_child_process { "spt", "pb", "--format", "%a - %t" }
+  -- if not success then
+  --   wez.log_error(stderr)
+  --   return ""
+  -- end
+  -- local res = format_playback(utilities._trim(pb), max_width)
+  -- stored_playback = res
+  -- last_update = os.time()
+  --
+  -- return res
 end
 
 return M
